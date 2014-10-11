@@ -1,0 +1,5 @@
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Contacts\Contacts\bin\Contacts.dll.config
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Contacts\Contacts\bin\Contacts.dll
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Contacts\Contacts\bin\Contacts.pdb
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Contacts\Contacts\obj\Debug\Contacts.dll
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Contacts\Contacts\obj\Debug\Contacts.pdb

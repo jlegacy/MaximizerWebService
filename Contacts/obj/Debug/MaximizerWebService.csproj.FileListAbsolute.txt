@@ -1,0 +1,6 @@
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Maximizer\Contacts\bin\Maximizer.dll.config
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Maximizer\Contacts\bin\Maximizer.dll
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Maximizer\Contacts\bin\Maximizer.pdb
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Maximizer\Contacts\obj\Debug\Maximizer.dll
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Maximizer\Contacts\obj\Debug\Maximizer.pdb
+C:\Users\jlegacy\Documents\Visual Studio 2013\Projects\Maximizer\Contacts\obj\Debug\MaximizerWebService.csprojResolveAssemblyReference.cache
