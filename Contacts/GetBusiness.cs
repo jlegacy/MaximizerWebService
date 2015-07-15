@@ -14,10 +14,12 @@ namespace Maximizer
         public String BState;
         public String BPhone1;
         public String BPhone2;
-        public String BPhone1Fax;
-        public String BPhone2Fax;
+        public String BFax1;
         public String BEmail;
         public String BZip;
+        public String BDPhone1;
+        public String BDPhone2;
+        public String BDFax1;
     }
     
 }

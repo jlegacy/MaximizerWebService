@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Data;
 using System.Data.SqlClient;
-using System.IO;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using Maximizer.Properties;
 
 namespace Maximizer
@@ -21,7 +17,7 @@ namespace Maximizer
 
             var myGetBusinessObjectList = new List<GetBusiness>();
 
-            string sqlString = "SELECT * FROM Business where BName  LIKE  '%" + name + "%'";
+            string sqlString = "SELECT TOP " + Settings.Default.maxRecords + " * FROM Business where BName  LIKE  '%" + name + "%'" + " order by BName";
             string connectionString = Settings.Default.connectionString;
             try
             {
@@ -43,12 +39,15 @@ namespace Maximizer
                             myGetBusinessObject.BName = (row["BName"].ToString());
                             myGetBusinessObject.BAddress = (row["BAddress"].ToString());
                             myGetBusinessObject.BCity = (row["BCity"].ToString());
+                            myGetBusinessObject.BState = (row["BState"].ToString());
                             myGetBusinessObject.BZip = (row["BZip"].ToString());
                             myGetBusinessObject.BPhone1 = (row["BPhone1"].ToString());
                             myGetBusinessObject.BPhone2 = (row["BPhone2"].ToString());
-                            myGetBusinessObject.BPhone1Fax = (row["BPhone1Fax"].ToString());
-                            myGetBusinessObject.BPhone2Fax = (row["BPhone2Fax"].ToString());
+                            myGetBusinessObject.BFax1 = (row["BFax1"].ToString());
                             myGetBusinessObject.BEmail = (row["BEmail"].ToString());
+                            myGetBusinessObject.BDPhone1 = String.Format("{0:(###) ###-####}", (row["BPhone1"]));
+                            myGetBusinessObject.BDPhone2 = String.Format("{0:(###) ###-####}", (row["BPhone2"]));
+                            myGetBusinessObject.BDFax1 = String.Format("{0:(###) ###-####}", (row["BFax1"]));
 
                             myGetBusinessObjectList.Add(myGetBusinessObject);
                         }
@@ -65,13 +64,16 @@ namespace Maximizer
 
         public DataContractContact[] GetContactsList(string pBusId)
         {
+
+      //      LogFile logger = new LogFile();
+
             var dataSet = new DataSet();
             DataRow dr;
 
             var myGetContactObjectList = new List<DataContractContact>();
 
             string sqlString = "SELECT * FROM Contact where CBusId = " +
-                               "'" + pBusId + "'" + " order by CConid";
+                               "'" + pBusId + "'" + " order by CLastName";
 
             string connectionString = Settings.Default.connectionString;
             try
@@ -97,6 +99,8 @@ namespace Maximizer
                             myGetContactObject.CPosition = (row["CPosition"].ToString());
                             myGetContactObject.CPhone1 = (row["CPhone1"].ToString());
                             myGetContactObject.CPhone2 = (row["CPhone2"].ToString());
+                            myGetContactObject.CPhone1Ext = (row["CPhone1Ext"].ToString());
+                            myGetContactObject.CPhone2Ext = (row["CPhone2Ext"].ToString());
                             myGetContactObject.CPhone1Fax = (row["CPhone1Fax"].ToString());
                             myGetContactObject.CPhone2Fax = (row["CPhone2Fax"].ToString());
                             myGetContactObject.CEmail = (row["CEmail"].ToString());
@@ -108,6 +112,7 @@ namespace Maximizer
             }
             catch (Exception e)
             {
+           //     logger.MyLogFile("test", e.ToString());
                 return null;
             }
 
@@ -116,15 +121,20 @@ namespace Maximizer
 
         public DataContractUserDefined[] GetUserDefinedList(string pBusId, string pConId)
         {
+
+
+        //    LogFile logger = new LogFile();
+            
             var dataSet = new DataSet();
             DataRow dr;
 
             var myList = new List<DataContractUserDefined>();
 
-            string sqlString = "SELECT * FROM UserDefined where " +
+            string sqlString = "SELECT * FROM UserDefined, UserDefinedCategory where " +
                                "UBusId = " + "'" + pBusId + "'" + " and " +
-                               "UConId = " + "'" + pConId + "'" +
-                               "order by UField";
+                               "UConId = " + "'" + pConId + "'" + " and " +
+                               "XUserDefId = UUserDefId" +
+                               " order by XUserSort";
 
             string connectionString = Settings.Default.connectionString;
             try
@@ -149,6 +159,7 @@ namespace Maximizer
                             myObject.UField = (row["UField"].ToString());
                             myObject.UItem = (row["UItem"].ToString());
                             myObject.UType = (row["UType"].ToString());
+                            myObject.UUserDefId = (row["UUserDefId"].ToString());
                         
                             myList.Add(myObject);
                         }
@@ -157,6 +168,54 @@ namespace Maximizer
             }
             catch (Exception e)
             {
+           //     logger.MyLogFile("test", e.ToString());
+                return null;
+            }
+
+            return myList.ToArray();
+        }
+
+        public DataContractUserDefinedCategory[] GetUserDefinedCategoriesList()
+        {
+
+       //     LogFile logger = new LogFile();
+
+            var dataSet = new DataSet();
+            DataRow dr;
+
+            var myList = new List<DataContractUserDefinedCategory>();
+
+            string sqlString = "SELECT * FROM UserDefinedCategory order by XUserSort";
+
+            string connectionString = Settings.Default.connectionString;
+            try
+            {
+                SqlConnection connection;
+                using (connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    var adapter = new SqlDataAdapter(sqlString, connection);
+                    adapter.Fill(dataSet);
+                    if (dataSet.Tables[0].Rows.Count > 0)
+                    {
+                        dr = dataSet.Tables[0].Rows[0];
+
+                        foreach (DataRow row in dr.Table.Rows)
+                        {
+                            var myObject = new DataContractUserDefinedCategory();
+
+                            myObject.XUserDefId = (row["XUserDefId"].ToString());
+                            myObject.XUserDefText = (row["XUserDefText"].ToString());
+                            myObject.XUserSort = (row["XUserSort"].ToString());
+                          
+                            myList.Add(myObject);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+       //         logger.MyLogFile("getcatlist: ", e.ToString());
                 return null;
             }
 
@@ -165,6 +224,9 @@ namespace Maximizer
 
         public bool DeleteContact(string contact)
         {
+
+        //    LogFile logger = new LogFile();
+
             string connectionString = Settings.Default.connectionString;
             try
             {
@@ -186,6 +248,7 @@ namespace Maximizer
             }
             catch (Exception ex)
             {
+        //        logger.MyLogFile("deletecontact: ", ex.ToString());
                 return false;
             }
 
@@ -196,7 +259,7 @@ namespace Maximizer
         public bool DeleteBusiness(string business)
         {
 
-            LogFile logger = new LogFile();
+     //       LogFile logger = new LogFile();
 
            
 
@@ -222,7 +285,7 @@ namespace Maximizer
             }
             catch (Exception ex)
             {
-                logger.MyLogFile("test", ex.ToString());
+      //          logger.MyLogFile("test", ex.ToString());
                 return false;
             }
 
@@ -232,7 +295,7 @@ namespace Maximizer
         public bool DeleteUserDefined(string user)
         {
 
-            LogFile logger = new LogFile();
+     //       LogFile logger = new LogFile();
 
 
 
@@ -258,21 +321,50 @@ namespace Maximizer
             }
             catch (Exception ex)
             {
-                logger.MyLogFile("test", ex.ToString());
+             //   logger.MyLogFile("test", ex.ToString());
                 return false;
             }
 
             return true;
         }
+
+        public bool DeleteUserDefinedCategory(string category)
+        {
+          //  LogFile logger = new LogFile();
+            string connectionString = Settings.Default.connectionString;
+            try
+            {
+                SqlConnection connection;
+                using (connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    var command1 = new SqlCommand("spDeleteUserDefinedCategory", connection);
+
+                    command1.CommandType = CommandType.StoredProcedure;
+
+                    command1.Parameters.Add(new SqlParameter("@XUserDefId", SqlDbType.NVarChar, 50));
+
+                    command1.Parameters["@XUserDefId"].Value = category;
+
+                    command1.ExecuteNonQuery();
+                }
+
+            }
+            catch (Exception ex)
+            {
+             //  logger.MyLogFile("test", ex.ToString());
+                return false;
+            }
+
+            return true;
+        }
+
         public Boolean UpdateBusiness(DataContractBusiness business)
         {
-            LogFile logger = new LogFile();
+        //    LogFile logger = new LogFile();
 
-            logger.MyLogFile("test", " Starting");
-
-            var data = new DataContractBusiness();
-
-            logger.MyLogFile("busienssId:", business.BBusId);
+      //      logger.MyLogFile("test", " Starting");
+       //     logger.MyLogFile("busienssId:", business.BBusId);
          
 
             string connectionString = Settings.Default.connectionString;
@@ -301,7 +393,44 @@ namespace Maximizer
             catch
                 (Exception e)
             {
-                logger.MyLogFile("test", e.ToString());
+        //        logger.MyLogFile("test", e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool AddUserDefinedCategory(DataContractUserDefinedCategory data)
+        {
+       //     LogFile logger = new LogFile();
+
+            string connectionString = Settings.Default.connectionString;
+            try
+            {
+                SqlConnection connection;
+
+                using (connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    SqlCommand command1;
+
+                    command1 = new SqlCommand("spInsertUserDefinedCategory", connection);
+
+                    // define the parameters of the stored procedure
+                    SetUserDefinedCategoryParamsStructure(ref command1);
+
+                    SetUserDefinedCategoryParamsValues(ref command1, data);
+
+                    command1.ExecuteNonQuery();
+
+                    connection.Close();
+                }
+            }
+            catch
+                (Exception e)
+            {
+         //       logger.MyLogFile("error:", e.ToString());
                 return false;
             }
 
@@ -310,7 +439,7 @@ namespace Maximizer
 
         public Boolean AddBusiness(DataContractBusiness data)
         {
-            LogFile logger = new LogFile();
+        //   LogFile logger = new LogFile();
 
             
 
@@ -340,17 +469,53 @@ namespace Maximizer
             catch
                 (Exception e)
             {
-                logger.MyLogFile("error:", e.ToString());
+           //    logger.MyLogFile("error:", e.ToString());
                 return false;
             }
 
             return true;
         }
 
-   
+        public bool UpdateUserDefinedCategory(DataContractUserDefinedCategory user)
+        {
+       //     LogFile logger = new LogFile();
+            
+            string connectionString = Settings.Default.connectionString;
+            try
+            {
+                SqlConnection connection;
+
+                using (connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    SqlCommand command1;
+
+                    command1 = new SqlCommand("spUpdateUserDefinedCategory", connection);
+
+                    // define the parameters of the stored procedure
+                    SetUserDefinedCategoryParamsStructure(ref command1);
+
+                    SetUserDefinedCategoryParamsValues(ref command1, user);
+
+                    command1.ExecuteNonQuery();
+
+                    connection.Close();
+                }
+            }
+            catch
+                (Exception e)
+            {
+              //          logger.MyLogFile("test", e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+
         public bool AddContact(DataContractContact data)
         {
-            LogFile logger = new LogFile();
+    //        LogFile logger = new LogFile();
 
             string connectionString = Settings.Default.connectionString;
             try
@@ -378,7 +543,7 @@ namespace Maximizer
             catch
                 (Exception e)
             {
-                logger.MyLogFile("error:", e.ToString());
+   //             logger.MyLogFile("error:", e.ToString());
                 return false;
             } 
 
@@ -387,7 +552,7 @@ namespace Maximizer
 
         public bool AddUserDefined(DataContractUserDefined data)
         {
-            LogFile logger = new LogFile();
+     //       LogFile logger = new LogFile();
 
             string connectionString = Settings.Default.connectionString;
             try
@@ -415,7 +580,7 @@ namespace Maximizer
             catch
                 (Exception e)
             {
-                logger.MyLogFile("error:", e.ToString());
+        //        logger.MyLogFile("error:", e.ToString());
                 return false;
             }
 
@@ -424,14 +589,12 @@ namespace Maximizer
 
         public Boolean UpdateContact(DataContractContact contact)
         {
-            LogFile logger = new LogFile();
+       //     LogFile logger = new LogFile();
 
-            logger.MyLogFile("test", " Starting");
-            
-            var data = new DataContractContact();
-
-            logger.MyLogFile("busienssId:", contact.CBusId);
-            logger.MyLogFile("contactId:", contact.CConId);
+     //       logger.MyLogFile("test", " Starting");
+      
+    //        logger.MyLogFile("busienssId:", contact.CBusId);
+    //        logger.MyLogFile("contactId:", contact.CConId);
 
        
             string connectionString = Settings.Default.connectionString;
@@ -460,7 +623,8 @@ namespace Maximizer
             catch
                 (Exception e)
             {
-                logger.MyLogFile("test", e.ToString());
+          //      logger.MyLogFile("test", e.ToString());
+                return false;
             }
 
             return true;
@@ -468,13 +632,12 @@ namespace Maximizer
 
         public Boolean UpdateUserDefined(DataContractUserDefined user)
         {
-            LogFile logger = new LogFile();
+        //    LogFile logger = new LogFile();
 
-            logger.MyLogFile("test", " Starting");
+         //   logger.MyLogFile("test", " Starting");
 
-            var data = new DataContractUserDefined();
-
-            logger.MyLogFile("userId:", user.UUsrId);
+     //       logger.MyLogFile("userId:", user.UUsrId);
+    //        logger.MyLogFile("busId:", user.UBusId);
            
 
 
@@ -494,7 +657,7 @@ namespace Maximizer
                     // define the parameters of the stored procedure
                     SetUserDefinedParamsStructure(ref command1);
 
-                    SetUserDefinedParamsValues(ref command1, data);
+                    SetUserDefinedParamsValues(ref command1, user);
 
                     command1.ExecuteNonQuery();
 
@@ -504,7 +667,8 @@ namespace Maximizer
             catch
                 (Exception e)
             {
-                logger.MyLogFile("test", e.ToString());
+        //        logger.MyLogFile("test", e.ToString());
+                return false;
             }
 
             return true;
@@ -512,9 +676,9 @@ namespace Maximizer
 
         public bool Test(RequestTest test)
         {
-            LogFile logger = new LogFile();
-            logger.MyLogFile("2:", test.Test2);
-            logger.MyLogFile("1:", test.Test);
+     //       LogFile logger = new LogFile();
+    //        logger.MyLogFile("2:", test.Test2);
+     //       logger.MyLogFile("1:", test.Test);
             return false;
         }
 
@@ -531,7 +695,16 @@ namespace Maximizer
             command1.Parameters["@UField"].Value = rowData.UField;
             command1.Parameters["@UItem"].Value = rowData.UItem;
             command1.Parameters["@UType"].Value = rowData.UType;
+            command1.Parameters["@UUserDefId"].Value = rowData.UUserDefId;
         }
+
+        private void SetUserDefinedCategoryParamsValues(ref SqlCommand command1, DataContractUserDefinedCategory rowData)
+        {
+            command1.Parameters["@XUserDefId"].Value = Convert.ToInt32(rowData.XUserDefId);
+            command1.Parameters["@XUserDefText"].Value = rowData.XUserDefText;
+            command1.Parameters["@XUserSort"].Value = Convert.ToInt32(rowData.XUserSort);
+        }
+
 
         private void SetUserDefinedParamsStructure(ref SqlCommand command1)
         {
@@ -542,6 +715,15 @@ namespace Maximizer
             command1.Parameters.Add(new SqlParameter("@UField", SqlDbType.NVarChar));
             command1.Parameters.Add(new SqlParameter("@UItem", SqlDbType.NVarChar));
             command1.Parameters.Add(new SqlParameter("@UType", SqlDbType.NVarChar));
+            command1.Parameters.Add(new SqlParameter("@UUserDefId", SqlDbType.NVarChar));
+        }
+
+        private void SetUserDefinedCategoryParamsStructure(ref SqlCommand command1)
+        {
+            command1.CommandType = CommandType.StoredProcedure;
+            command1.Parameters.Add(new SqlParameter("@XUserDefId", SqlDbType.Int));
+            command1.Parameters.Add(new SqlParameter("@XUserDefText", SqlDbType.NVarChar));
+            command1.Parameters.Add(new SqlParameter("@XUserSort", SqlDbType.Int));
         }
 
         private void SetContactParamsValues(ref SqlCommand command1, DataContractContact rowData)
@@ -554,9 +736,31 @@ namespace Maximizer
 
             command1.Parameters["@CPosition"].Value = rowData.CPosition;
 
-            command1.Parameters["@CPhone1"].Value = Convert.ToInt64(rowData.CPhone1);
+            command1.Parameters["@CPhone1"].Value = 0;
+            command1.Parameters["@CPhone2"].Value = 0;
+            command1.Parameters["@CPhone1Ext"].Value = 0;
+            command1.Parameters["@CPhone2Ext"].Value = 0;
 
-            command1.Parameters["@CPhone2"].Value = Convert.ToInt64(rowData.CPhone2);
+
+            if (rowData.CPhone1.Trim().Length > 0)
+            {
+                command1.Parameters["@CPhone1"].Value = Convert.ToInt64(rowData.CPhone1);
+            }
+
+            if (rowData.CPhone2.Trim().Length > 0)
+            {
+                command1.Parameters["@CPhone2"].Value = Convert.ToInt64(rowData.CPhone2);
+            }
+
+            if (rowData.CPhone1Ext.Trim().Length > 0)
+            {
+                command1.Parameters["@CPhone1Ext"].Value = Convert.ToInt32(rowData.CPhone1Ext);
+            }
+
+            if (rowData.CPhone2Ext.Trim().Length > 0)
+            {
+                command1.Parameters["@CPhone2Ext"].Value = Convert.ToInt32(rowData.CPhone2Ext);
+            }
 
             command1.Parameters["@CPhone1Fax"].Value = rowData.CPhone1Fax;
 
@@ -574,6 +778,8 @@ namespace Maximizer
             command1.Parameters.Add(new SqlParameter("@CPosition", SqlDbType.NVarChar));
             command1.Parameters.Add(new SqlParameter("@CPhone1", SqlDbType.BigInt));
             command1.Parameters.Add(new SqlParameter("@CPhone2", SqlDbType.BigInt));
+            command1.Parameters.Add(new SqlParameter("@CPhone1Ext", SqlDbType.Int));
+            command1.Parameters.Add(new SqlParameter("@CPhone2Ext", SqlDbType.Int));
             command1.Parameters.Add(new SqlParameter("@CPhone1Fax", SqlDbType.NVarChar));
             command1.Parameters.Add(new SqlParameter("@CPhone2Fax", SqlDbType.NVarChar));
             command1.Parameters.Add(new SqlParameter("@CEmail", SqlDbType.NVarChar));
@@ -581,6 +787,9 @@ namespace Maximizer
 
         private static void SetBusinessParamsValues(ref SqlCommand command1, DataContractBusiness rowData)
         {
+            var phone1 = 0;
+            var phone2 = 0;
+            
             command1.Parameters["@BBusId"].Value = rowData.BBusId;
             command1.Parameters["@BName"].Value = rowData.BName;
             command1.Parameters["@BAddress"].Value = rowData.BAddress;
@@ -589,14 +798,29 @@ namespace Maximizer
 
             command1.Parameters["@BState"].Value = rowData.BState;
 
-            command1.Parameters["@BPhone1"].Value = Convert.ToInt64(rowData.BPhone1);
+            command1.Parameters["@BPhone1"].Value = 0;
+            command1.Parameters["@BPhone2"].Value = 0;
+            command1.Parameters["@BFax1"].Value = 0;
 
-            command1.Parameters["@BPhone2"].Value = Convert.ToInt64(rowData.BPhone2);
+       
+            if (rowData.BPhone1.Trim().Length > 0)
+            {
+                command1.Parameters["@BPhone1"].Value = Convert.ToInt64(rowData.BPhone1);
+            }
 
-            command1.Parameters["@BPhone1Fax"].Value = rowData.BPhone1Fax;
+            if (rowData.BPhone2.Trim().Length > 0)
+            {
+                command1.Parameters["@BPhone2"].Value = Convert.ToInt64(rowData.BPhone2);
+            }
 
-            command1.Parameters["@BPhone2Fax"].Value = rowData.BPhone2Fax;
+            if (rowData.BFax1.Trim().Length > 0)
+            {
+                command1.Parameters["@BFax1"].Value = Convert.ToInt64(rowData.BFax1);
+            }
+
+
             command1.Parameters["@BEmail"].Value = rowData.BEmail;
+
             command1.Parameters["@BZip"].Value = Convert.ToInt32(rowData.BZip);
         }
 
@@ -610,8 +834,7 @@ namespace Maximizer
             command1.Parameters.Add(new SqlParameter("@BState", SqlDbType.NVarChar));
             command1.Parameters.Add(new SqlParameter("@BPhone1", SqlDbType.NVarChar));
             command1.Parameters.Add(new SqlParameter("@BPhone2", SqlDbType.NVarChar));
-            command1.Parameters.Add(new SqlParameter("@BPhone1Fax", SqlDbType.NVarChar));
-            command1.Parameters.Add(new SqlParameter("@BPhone2Fax", SqlDbType.NVarChar));
+            command1.Parameters.Add(new SqlParameter("@BFax1", SqlDbType.NVarChar));
             command1.Parameters.Add(new SqlParameter("@BEmail", SqlDbType.NVarChar));
             command1.Parameters.Add(new SqlParameter("@BZip", SqlDbType.Int));
         }

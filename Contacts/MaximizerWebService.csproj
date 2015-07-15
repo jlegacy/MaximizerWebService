@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddContact.cs" />
+    <Compile Include="DataContractUserDefinedCategory.cs" />
     <Compile Include="GetBusiness.cs" />
     <Compile Include="DataContractBusiness.cs" />
     <Compile Include="DataContractContact.cs" />

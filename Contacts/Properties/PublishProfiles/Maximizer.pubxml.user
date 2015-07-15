@@ -10,16 +10,16 @@ by editing this MSBuild file. In order to learn more about this please visit htt
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/Maximizer.dll">
-      <publishTime>10/10/2014 21:55:49</publishTime>
+      <publishTime>10/28/2014 16:56:22</publishTime>
     </File>
     <File Include="bin/Maximizer.pdb">
-      <publishTime>10/10/2014 21:55:49</publishTime>
+      <publishTime>10/28/2014 16:56:21</publishTime>
     </File>
     <File Include="Service1.svc">
-      <publishTime>09/30/2014 13:20:29</publishTime>
+      <publishTime>10/10/2014 22:53:50</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>10/10/2014 13:42:49</publishTime>
+      <publishTime>10/28/2014 14:41:29</publishTime>
     </File>
   </ItemGroup>
 </Project>

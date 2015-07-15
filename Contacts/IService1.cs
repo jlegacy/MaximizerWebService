@@ -22,7 +22,7 @@ namespace Maximizer
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare,
             UriTemplate = "GetContacts/?Business={pBusId}")]
-        DataContractContact[] GetContactsList(String pBusId);
+        DataContractContact[] GetContactsList(String pBusId); 
 
 
         [OperationContract]
@@ -31,6 +31,13 @@ namespace Maximizer
             BodyStyle = WebMessageBodyStyle.Bare,
             UriTemplate = "GetUserDefined/?Business={pBusId}&Contact={pConId}")]
         DataContractUserDefined[] GetUserDefinedList(String pBusId, String pConId);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            UriTemplate = "UserDefinedCategories")]
+        DataContractUserDefinedCategory[] GetUserDefinedCategoriesList();
 
         [OperationContract]
         [WebInvoke(Method = "POST",
@@ -57,6 +64,14 @@ namespace Maximizer
             UriTemplate = "UpdateUserDefined")]
         bool UpdateUserDefined(DataContractUserDefined user);
 
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            UriTemplate = "UpdateUserDefinedCategory")]
+        bool UpdateUserDefinedCategory(DataContractUserDefinedCategory user);
+
 
       [OperationContract]
       [WebInvoke(Method = "POST",
@@ -74,6 +89,14 @@ namespace Maximizer
           BodyStyle = WebMessageBodyStyle.Bare,
           UriTemplate = "AddUserDefined")]
       bool AddUserDefined(DataContractUserDefined user);
+
+      [OperationContract]
+      [WebInvoke(Method = "POST",
+          ResponseFormat = WebMessageFormat.Json,
+          RequestFormat = WebMessageFormat.Json,
+          BodyStyle = WebMessageBodyStyle.Bare,
+          UriTemplate = "AddUserDefinedCategory")]
+      bool AddUserDefinedCategory(DataContractUserDefinedCategory user);
 
       [OperationContract]
       [WebInvoke(Method = "POST",
@@ -107,6 +130,14 @@ namespace Maximizer
           BodyStyle = WebMessageBodyStyle.Bare,
           UriTemplate = "DeleteUserDefined/?User={user}")]
       bool DeleteUserDefined(String user);
+
+      [OperationContract]
+      [WebInvoke(Method = "GET",
+          ResponseFormat = WebMessageFormat.Json,
+          RequestFormat = WebMessageFormat.Json,
+          BodyStyle = WebMessageBodyStyle.Bare,
+          UriTemplate = "DeleteUserDefinedCategory/?Category={category}")]
+      bool DeleteUserDefinedCategory(String category);
 
         
               [OperationContract]

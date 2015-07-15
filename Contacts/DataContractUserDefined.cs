@@ -12,5 +12,6 @@ namespace Maximizer
         [DataMember] public String UField;
         [DataMember] public String UItem;
         [DataMember] public String UType;
+        [DataMember] public String UUserDefId;
     }
 }

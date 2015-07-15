@@ -29,5 +29,9 @@ namespace Maximizer
         public String CPhone2Fax { get; set; }
          [DataMember] 
         public String CEmail { get; set; }
+         [DataMember]
+         public String CPhone1Ext { get; set; }
+         [DataMember]
+         public String CPhone2Ext { get; set; }
     }
 }

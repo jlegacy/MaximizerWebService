@@ -35,10 +35,10 @@ namespace Maximizer.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public string maxRecords {
             get {
-                return ((string)(this["Setting"]));
+                return ((string)(this["maxRecords"]));
             }
         }
     }
